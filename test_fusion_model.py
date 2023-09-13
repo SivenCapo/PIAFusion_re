@@ -36,7 +36,7 @@ if __name__ == '__main__':
     parser.add_argument('--save_path', default='results/fusion')  # 融合结果存放位置
     parser.add_argument('-j', '--workers', default=1, type=int, metavar='N',
                         help='number of data loading workers (default: 4)')
-    parser.add_argument('--fusion_pretrained', default='pretrained/fusion_model_epoch_40.pth',
+    parser.add_argument('--fusion_pretrained', default='pretrained/fusion_model_epoch_31.pth',
                         help='use cls pre-trained model')
     parser.add_argument('--seed', default=0, type=int,
                         help='seed for initializing training. ')
@@ -59,6 +59,8 @@ if __name__ == '__main__':
     if args.arch == 'fusion_model':
         model = PIAFusion()
         model = model.cuda()
+        model.encoder = torch.nn.DataParallel(model.encoder)
+        model.decoder = torch.nn.DataParallel(model.decoder)
         model.load_state_dict(torch.load(args.fusion_pretrained))
         model.eval()
         metric_result = np.zeros((8))
