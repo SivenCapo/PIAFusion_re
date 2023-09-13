@@ -21,6 +21,7 @@ from data_loader.msrs_data import MSRS_data
 from models.cls_model import Illumination_classifier
 from models.common import gradient, clamp
 from models.fusion_model import PIAFusion
+from models.fusion_model_ori import PIAFusion_ori
 
 
 def init_seeds(seed=0):
@@ -81,6 +82,7 @@ if __name__ == '__main__':
     # 如果是融合网络
     if args.arch == 'fusion_model':
         model = PIAFusion()
+        #model = PIAFusion_ori()
         model = model.cuda()
         model.load_state_dict(torch.load('pretrained/fusion_model_epoch_59.pth'))
         print(model)
