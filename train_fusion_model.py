@@ -10,7 +10,6 @@
 import argparse
 import os
 import random
-
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -38,23 +37,23 @@ def init_seeds(seed=0):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='PyTorch PIAFusion')
-    parser.add_argument('--dataset_path', metavar='DIR', default='datasets/msrs_train',
+    parser.add_argument('--dataset_path', metavar='DIR', default='../MMIF-CDDFuse/MSRS_train/MSRS/train_o/train',
                         help='path to dataset (default: imagenet)')
     parser.add_argument('-a', '--arch', metavar='ARCH', default='fusion_model',
                         choices=['fusion_model'])
     parser.add_argument('--save_path', default='pretrained')  # 模型存储路径
-    parser.add_argument('-j', '--workers', default=1, type=int, metavar='N',
+    parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
                         help='number of data loading workers (default: 4)')
-    parser.add_argument('--epochs', default=30, type=int, metavar='N',
+    parser.add_argument('--epochs', default=60, type=int, metavar='N',
                         help='number of total epochs to run')
-    parser.add_argument('--start_epoch', default=0, type=int, metavar='N',
+    parser.add_argument('--start_epoch', default=30, type=int, metavar='N',
                         help='manual epoch number (useful on restarts)')
-    parser.add_argument('-b', '--batch_size', default=128, type=int,
+    parser.add_argument('-b', '--batch_size', default=4, type=int,
                         metavar='N',
                         help='mini-batch size (default: 256), this is the total '
                              'batch size of all GPUs on the current node when '
                              'using Data Parallel or Distributed Data Parallel')
-    parser.add_argument('--lr', '--learning-rate', default=0.001, type=float,
+    parser.add_argument('--lr', '--learning-rate', default=0.000001, type=float,
                         metavar='LR', help='initial learning rate', dest='lr')
     parser.add_argument('--image_size', default=64, type=int,
                         metavar='N', help='image size of input')
@@ -83,6 +82,11 @@ if __name__ == '__main__':
     if args.arch == 'fusion_model':
         model = PIAFusion()
         model = model.cuda()
+        model.load_state_dict(torch.load('pretrained/fusion_model_epoch_59.pth'))
+        print(model)
+        #model = torch.nn.DataParallel(model,device_ids=[1,2,3])
+        model.encoder = torch.nn.DataParallel(model.encoder)
+        model.decoder = torch.nn.DataParallel(model.decoder)
 
         # 加载预训练的分类模型
         # one-hot标签[白天概率，夜晚概率]
